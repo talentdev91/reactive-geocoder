@@ -1,0 +1,7 @@
+{
+  "name": "reactive-geocoder",
+  "description": "Package for integrating geocoding, based on node-geocoder",
+  "author": "Paul Balomiri <paulbalomiri@gmail.com>",
+  "version": "0.0.1",
+  "git": "git@github.com:paulbalomiri/reactive-geocoder.git"
+}
