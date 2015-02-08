@@ -1,4 +1,165 @@
 template(name='geo_search_box')
-  +select2(placeholder="Enter an address")
-    each testentries
-      option(value=val)
+  .geo_search_box_container(id=container_id) 
+    if xeditable
+      .editable-content
+        +yield
+    else
+      .input-group.hidden(style='display:none;')
+        // The point of this is that Dynamic template does not work without a main region
+            see https://github.com/EventedMind/iron-layout/issues/14
+        +yield
+      
+      if has_input_group_addon_or_btn
+        .input-group  
+          if hasRegion "addon-before"
+            span.input-group-addon
+              +yield "addon-before"
+          if hasRegion "btn-before"
+            span.input-group-btn
+              +yield "btn-before"
+            
+          input.form-control.select2.select2-remote(id=id type='hidden' $dyn=dyn_attributes)
+          if hasRegion "addon-after"
+            span.input-group-addon
+              +yield "addon-after"
+          if hasRegion "btn-after"
+            //span.input-group-btn
+            span.input-group-btn
+              +yield "btn-after"
+      else
+        +yield 'above'
+        input.form-control.select2.select2-remote(id=id type='hidden' $dyn=dyn_attributes)
+        +yield 'below'
+template(name="rgeo_explain_box" )
+  #explain-accordion.panel-group
+    +route_viewer_accordion
+    .panel.panel-default
+      .panel-heading
+        a.small( data-toggle="collapse" data-parent="#explain-accordion" href="#explain-route-action")
+          .panel-title 
+            |Composer
+            with missing_route_addresses number_only=true
+              span.badge.pull-right
+                | add #{.} &nbsp;
+                i.fa.fa-envelope-o
+            with missing_route_contacts number_only=true
+              span.badge.pull-right
+                | add #{.} &nbsp;
+                i.fa.fa-user
+            with missing_route_vehicle number_only=true
+              span.badge.pull-right
+                | add #{.} &nbsp;
+                i.fa.fa-truck
+            .clearfix
+                
+           
+      #explain-route-action.panel-collapse.collapse
+        .panel-body
+          +rgeo_route_action_box id=id
+    +schedule_collapsable
+
+
+  
+
+template(name="rgeo_explain_box_tabbed" )
+  ul.nav.nav-tabs(role="tablist")
+    li#add-route.active(role="tab" data-toggle="tab") 
+      a Route
+    li#add-addr(role="tab" data-toggle="tab") 
+      a Addres
+    li#add-poi(role="tab" data-toggle="tab") 
+      a Poi
+  .tab-content
+    #add-route.tab-pane.fade.in.active
+      #bef
+        | Before
+      +rgeo_route_action_box id=id
+      #aft
+        | after
+
+
+
+template(name="rgeo_route_action_box")
+  ul.explanation(id=id)
+
+
+    with extract 'from' id one=true
+      li.list-group-item
+        .route-source-description.row 
+          .icon-source.col-md-2
+            span.label.label-default
+              i.fa.fa-map-marker
+              i.fa.fa-hand-o-right
+          .content-source.col-md-9
+            with extract 'sender' ../id one=true
+              +render_entity obj=. show_icon=true
+            | &nbsp;
+            +render_entity obj=. show_icon=true
+          
+    else
+      with extract 'sender' ../id one=true
+        li.list-group-item
+          p.text-uppercase sender:
+          +render_entity obj=. show_icon=true
+
+    each extract 'via' id 
+      li.list-group-item
+        span.label.label-default.col-md-1
+          i.fa.fa-map-marker 
+          | &nbsp;
+        | &nbsp;
+        +render_entity obj=.
+
+         
+    with extract 'dest' id one=true
+      li.list-group-item
+        .route-dest-description.row
+          .icon-dest.col-md-2
+            span.label.label-default
+              i.fa.fa-hand-o-right
+              i.fa.fa-map-marker
+          .content-source.col-md-9
+            with extract 'receiver' ../id one=true
+                +render_entity obj=. show_icon=true
+                | &nbsp;
+            +render_entity obj=.
+          
+    else
+      with extract 'receiver' ../id one=true
+        li.list-group-item
+          p.text-uppercase receiver:
+          +render_entity obj=. show_icon=true  
+    with extract 'vehicles' ../id one=true
+      li.list-group-item
+          +render_entity obj=. show_icon=true
+    .btn-group
+      each actions
+        .abbr(title="{{description}}")
+          button.btn.btn-primary(class="{{class}}", data-search-box-id='{{../id }}')
+            if icon_classes
+              i(class="{{icon_classes}}")
+
+template(name="render_customer_or_contact")
+  if is_customer
+    +render_customer customer_link=obj show_icon=show_icon
+  else if is_contact
+    +render_contact contact_link=obj show_icon=show_icon
+
+template(name="add_entity")
+  .content
+    | Add &nbsp;
+    kbd
+      | #{term} 
+    | &nbsp;to database as new
+    .btn-toolbar.pull-right
+      .btn.btn-primary.btn-sx.add-customer(data-term= '{{term}}')
+        i.fa.fa-building-o
+        | customer
+      .btn.btn-primary.btn-sx.add-contact(data-term= '{{term}}')
+        i.fa.fa-user
+        | contact    
+  .clearfix
+
+
+
+
