@@ -3,3 +3,4 @@
 packages/*
 package.js
 smart.lock
+versions.json
