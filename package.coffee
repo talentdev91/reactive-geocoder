@@ -31,7 +31,7 @@ Package.on_use (api)->
   api.export 'RGEO', ['client','server']
   console.error("registered servervi")
 
-  api.use ['coffeescript', 'less','underscore', 'jade'], ['client','server']
+  api.use ['coffeescript', 'less','underscore', 'jade', 'alethes:lodash'], ['client','server']
   api.use ['session','templating', 'simple-schema-search'], 'client'
   ##api.use ['jquery-select2'], ['client','server']
   api.use ['select2','select2-bootstrap3-css'],  'client'

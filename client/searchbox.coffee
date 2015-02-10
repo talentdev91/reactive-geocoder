@@ -121,24 +121,24 @@ do (box=Template.geo_search_box,route_action_box=Template.rgeo_route_action_box)
         while tmpl_instance and not tmpl_instance.templateInstance?
           tmpl_instance=tmpl_instance.parentView
         tmpl_instance=tmpl_instance?.templateInstance()
-
-        debugger
         my_id=@element.attr 'id'
         console.log 'QUERY CALLED context=' ,query
         i=1
         if query.context?
           console.log "received a requery call with query: ", query
           query.context.continuation_callback=query.callback
-          query.context.subscription.computation.invalidate()
+          query.context.subscription?.computation?.invalidate()
           return
         else
           q= 
             term: query.term
             current_selection: @element.select2('val')
           if tmpl_instance?.options?.search_types?
-
             q.search_types= tmpl_instance.options.search_types
-           
+          if tmpl_instance?.options?.search_filter?
+            sf= JSON.stringify tmpl_instance.options.search_filter
+            if sf? 
+              q.search_filter= sf
           query.context=
             first_run:true
             continuation_callback:null
@@ -148,6 +148,7 @@ do (box=Template.geo_search_box,route_action_box=Template.rgeo_route_action_box)
               limit:10
               skip:0
               transform:(doc)->
+                debugger
                 {id:doc._id}
             query:query
           ##dampens the query
@@ -229,6 +230,7 @@ do (box=Template.geo_search_box,route_action_box=Template.rgeo_route_action_box)
   box.created = ->
     direct_tmpl_options= [
       'search_types'
+      'search_filter'
       'createSearchChoice'
     ]
 

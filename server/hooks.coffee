@@ -1,4 +1,4 @@
-
+_= lodash
 #Meteor.startup ->
 RGEO.OSRM.router= new RGEO.OSRM.OSRMClient Meteor.settings.OSRM_Server
 console.log "OSRM server settings" , Meteor.settings.OSRM_Server
@@ -18,8 +18,12 @@ RGEO.search_requests.before.insert (userId, doc)->
         console.error("Error while trying to resolve link" , JSON.stringify(link,null,2))
    
   if doc.term?
-
-    db_results=SSS.search doc, (result_doc)->
+    if doc.search_filter
+      search_doc= _.cloneDeep doc
+      search_doc.search_filter = JSON.parse doc.search_filter
+    else 
+      search_doc=doc
+    db_results=SSS.search search_doc, (result_doc)->
       [type,subtype]=result_doc.type.split(':')
       switch
         when type of collections.collection_to_type_mapper
