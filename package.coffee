@@ -34,9 +34,9 @@ Package.on_use (api)->
   api.use ['coffeescript', 'less','underscore', 'mquandalle:jade@0.4.1', 'alethes:lodash'], ['client','server']
   api.use ['session','templating', 'simple-schema-search'], 'client'
   ##api.use ['jquery-select2'], ['client','server']
-  api.use ['select2','select2-bootstrap3-css'],  'client'
+  api.use ['natestrauser:select2@3.5.1','zimme:select2-bootstrap3-css@1.4.1'],  'client'
   api.use ['matb33:collection-hooks','entity-base' , 'entity-renderer' ]
-  api.use ['uri-js', 'http'],'server'
+  api.use [ 'http'],'server'
 
   api.add_files client_jade, 'client'
   api.add_files both_f, ['client','server']
