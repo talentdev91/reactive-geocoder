@@ -92,28 +92,33 @@ do (box=Template.geo_search_box,route_action_box=Template.rgeo_route_action_box)
             return {id: id}
         return
       formatSelection: (object,container)->
+        debugger
         template_arg=
            obj: RGEO.search_results.findOne(object.id) or object
            one_line_editor:true
         template_arg.obj.collection= 'geocoding_results'
         #UI.insert UI.renderWithData(Template.render_entity, template_arg), container[0]
+        console.log "template_arg", template_arg
+
         Blaze.renderWithData Template.render_entity, template_arg, container[0]
-        return
- 
+        return 
+      id: "_id"
       createSearchChoice: (term)->
         return  {
-              id:'add'
+              _id:'add'
               disabled:true
               type:'op_add'
             }   
       multiple:true
       quietMillis: 3000 
       formatResult: (object,container,query)->
+        debugger
         template_arg=
           obj: RGEO.search_results.findOne(object.id) or object
           term:query.term
           editable:false
         #UI.insert UI.renderWithData(Template.render_entity,template_arg), container[0]
+        console.log "template_arg", template_arg
         Blaze.renderWithData Template.render_entity, template_arg,container[0]
         return
       query: (query)->
@@ -147,9 +152,6 @@ do (box=Template.geo_search_box,route_action_box=Template.rgeo_route_action_box)
             selection_opts:
               limit:10
               skip:0
-              transform:(doc)->
-                debugger
-                {id:doc._id}
             query:query
           ##dampens the query
           delay= -> 
@@ -299,7 +301,7 @@ do (box=Template.geo_search_box,route_action_box=Template.rgeo_route_action_box)
         resolve = (id )->
           result=RGEO.search_results.findOne(id)
           if result?
-            result=_.omit(result, ['collection', '_id'])
+            result= _.omit(result, ['collection', '_id'])
           else
             result= options?.value?.filter (x)->'link_id'== id 
             result= result?[0]
@@ -309,10 +311,13 @@ do (box=Template.geo_search_box,route_action_box=Template.rgeo_route_action_box)
             throw Error(err)
           return result
         sel2_elm.on 'change', (e) ->
-          if e.added
-            e.added = resolve(e.added.id)
-          if e.removed
-            e.removed= resolve(e.removed)
+          [added,removed]=[e.added,e.removed]
+          added= _.compact [added] unless _.isArray added
+          removed = _.compact [removed] unless _.isArray removed
+          if added.length 
+            e.added = added.map (x)->resolve(x._id)
+          if removed.length
+            e.removed= removed.map (x)->resolve(x._id)
           options.change_callback.call this,e 
       q=sel2_elm.parent().find('ul.select2-choices')
       q.sortable
@@ -332,6 +337,7 @@ do (box=Template.geo_search_box,route_action_box=Template.rgeo_route_action_box)
         if data.val.length
           RGEO.selection_subscription[my_id]=Meteor.subscribe 'geocoding_results',data.val
         if unsubscribe?
+          debugger
           unsubscribe.stop()
       
 
@@ -485,6 +491,7 @@ Template.add_entity.rendered =->
         new_contact_name = $(event.target).data('term')
         key=collections.contact_collection.insert
           name:new_contact_name
+        debugger
         search_key=RGEO.search_results.insert
           type:'contact:ref'
           link_id: key
